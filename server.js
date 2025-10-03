@@ -1,4 +1,4 @@
-
+require('dotenv').config();
 const express = require('express');
 const { Pool } = require('pg');
 const path = require('path');
@@ -6,16 +6,16 @@ const cors = require('cors'); // Importa o pacote cors
 
 const app = express();
 app.use(cors()); // Habilita o CORS para todas as requisições
-const port = 3000
+const port = process.env.PORT || 3000;
 
 // --- Configuração do Banco de Dados ---
-// Use as credenciais fornecidas por você.
+// As credenciais agora são lidas das variáveis de ambiente
 const pool = new Pool({
-    user: 'dw',
-    host: '147.93.69.168',
-    database: 'dwpostgres',
-    password: 'apo@161616',
-    port: 5432,
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_DATABASE,
+    password: process.env.DB_PASSWORD,
+    port: process.env.DB_PORT,
 });
 
 // Middleware para servir arquivos estáticos (como index.html)
