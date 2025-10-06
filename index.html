@@ -560,7 +560,7 @@
                 }
 
                 try {
-                    const response = await fetch(`/search-employees?term=${currentValue}`);
+                    const response = await fetch(`https://apps-protocolo-emec-v2.sgmdos.easypanel.host/search-employees?term=${currentValue}`);
                     if (!response.ok) throw new Error('Network response was not ok');
                     
                     const employees = await response.json();
