@@ -96,7 +96,7 @@
                             <span id="errorMessage"></span>
                         </div>
 
-                        <form id="documentForm" action="https://automacoes-n8n.sgmdos.easypanel.host/webhook-test/testes" method="POST" enctype="multipart/form-data">
+                        <form id="documentForm" action="https://automacoes-n8n.sgmdos.easypanel.host/webhook/protocolov2" method="POST" enctype="multipart/form-data">
                             <!-- Tipo de Documento -->
                             <div class="mb-3">
                                 <label for="documentType" class="form-label fw-semibold">Tipo de Documento <span class="text-danger">*</span></label>
@@ -560,7 +560,7 @@
                 }
 
                 try {
-                    const response = await fetch(`http://localhost:3000/search-employees?term=${currentValue}`);
+                    const response = await fetch(`/search-employees?term=${currentValue}`);
                     if (!response.ok) throw new Error('Network response was not ok');
                     
                     const employees = await response.json();

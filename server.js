@@ -5,7 +5,10 @@ const path = require('path');
 const cors = require('cors'); // Importa o pacote cors
 
 const app = express();
-app.use(cors()); // Habilita o CORS para todas as requisições
+const corsOptions = {
+    origin: 'https://4dsjunior.github.io' // Allow requests from your GitHub Pages site
+};
+app.use(cors(corsOptions));
 const port = process.env.PORT || 3000;
 
 // --- Configuração do Banco de Dados ---
