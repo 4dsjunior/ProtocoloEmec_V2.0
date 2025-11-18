@@ -41,7 +41,7 @@ app.get('/search-employees', async (req, res) => {
         // O '%' é um coringa que busca por qualquer coisa que COMECE com o termo.
         const query = {
             text: `
-                SELECT numcad, nomfun 
+                SELECT numemp, numcad, nomfun 
                 FROM public."Ffuncionarios" 
                 WHERE CAST(numcad AS TEXT) LIKE $1 
                    OR nomfun ILIKE $1
@@ -53,7 +53,7 @@ app.get('/search-employees', async (req, res) => {
         const { rows } = await pool.query(query);
         
         // Retorna os resultados como um JSON.
-        // Ex: [{ "numcad": 12345, "nomfun": "NOME DO FUNCIONARIO" }]
+        // Ex: [{ "numemp": 1, "numcad": 12345, "nomfun": "NOME DO FUNCIONARIO" }]
         res.json(rows);
 
     } catch (error) {
