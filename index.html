@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- Adicionado para controle de cache -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
@@ -91,7 +90,6 @@
                         <div class="text-center mb-4">
                             <img src="grupoemec.png" alt="Grupo EMEC Logo" style="height: 50px;">
                         </div>
-                        <!-- Mensagens de Feedback -->
                         <div id="successAlert" class="alert alert-success d-none" role="alert">
                             <i class="bi bi-check-circle-fill me-2"></i>
                             <span id="successMessage"></span>
@@ -103,7 +101,6 @@
                         </div>
 
                         <form id="documentForm" action="https://automacoes-n8n.sgmdos.easypanel.host/webhook/protocolov2" method="POST" enctype="multipart/form-data">
-                            <!-- Tipo de Documento -->
                             <div class="mb-3">
                                 <label for="documentType" class="form-label fw-semibold">Tipo de Documento <span class="text-danger">*</span></label>
                                 <select class="form-select" id="documentType" name="documentType" required>
@@ -124,14 +121,12 @@
                                 <div class="invalid-feedback" id="documentTypeError">Por favor, selecione o tipo de documento.</div>
                             </div>
 
-                            <!-- Busca -->
                             <div class="mb-3">
                                 <label for="employeeSearch" class="form-label fw-semibold">Busca (filtro por CAD ou Nome)</label>
                                 <input type="text" class="form-control" id="employeeSearch" placeholder="Digite o CAD ou o nome para buscar..." list="employee-list">
                                 <datalist id="employee-list"></datalist>
                             </div>
 
-                            <!-- CAD e Nome (Read-only) -->
                             <div class="row mb-3">
                                 <div class="col-12 col-md-4">
                                     <label for="employeeCAD" class="form-label fw-semibold">CAD <span class="text-danger">*</span></label>
@@ -144,8 +139,8 @@
                                     <div class="invalid-feedback" id="employeeNameError">Nome completo é obrigatório e deve ser selecionado pela busca.</div>
                                 </div>
                             </div>
+                            <input type="hidden" id="employeeNumemp" name="employeeNumemp">
 
-                            <!-- Setor -->
                             <div class="mb-4">
                                 <label for="sector" class="form-label fw-semibold">Setor <span class="text-danger">*</span></label>
                                 <select class="form-select" id="sector" name="sector" required>
@@ -172,7 +167,6 @@
 
                             <hr class="my-4">
 
-                            <!-- Upload de Arquivos -->
                             <div class="mb-4">
                                 <label class="form-label fw-semibold">
                                     <i class="bi bi-paperclip me-1"></i>
@@ -196,7 +190,6 @@
                                 <div class="invalid-feedback d-block" id="fileUploadError"></div>
                             </div>
 
-                            <!-- Observações -->
                             <div class="mb-4">
                                 <label for="observations" class="form-label fw-semibold">
                                     <i class="bi bi-chat-text me-1"></i>
@@ -211,7 +204,6 @@
                                 </div>
                             </div>
 
-                            <!-- Botões de Ação -->
                             <div class="d-grid gap-2 d-md-flex justify-content-md-center pt-3 border-top">
                                 <button type="submit" class="btn btn-primary btn-lg" id="submitBtn" style="background-color: #4CAF50; border-color: #4CAF50;">
                                     <span class="spinner-border spinner-border-sm me-2 d-none" role="status" aria-hidden="true"></span>
@@ -230,7 +222,6 @@
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     
     <script>
@@ -537,13 +528,13 @@
         });
     </script>
 
-    <!-- SCRIPT PARA BUSCA DE FUNCIONÁRIOS -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const searchInput = document.getElementById('employeeSearch');
             const cadInput = document.getElementById('employeeCAD');
             const nameInput = document.getElementById('employeeName');
             const employeeList = document.getElementById('employee-list');
+            const numempInput = document.getElementById('employeeNumemp'); // Variável para o novo campo NUMEMP
 
             searchInput.addEventListener('input', async (e) => {
                 const currentValue = e.target.value;
@@ -552,6 +543,7 @@
                 if (selectedOption) {
                     cadInput.value = selectedOption.dataset.cad;
                     nameInput.value = selectedOption.dataset.name;
+                    numempInput.value = selectedOption.dataset.numemp; // Atribui o numemp selecionado
                     
                     searchInput.value = '';
                     employeeList.innerHTML = '';
@@ -581,6 +573,7 @@
                         option.value = `${emp.numcad} - ${emp.nomfun}`;
                         option.dataset.cad = emp.numcad;
                         option.dataset.name = emp.nomfun;
+                        option.dataset.numemp = emp.numemp; // Adiciona numemp ao dataset da opção
                         employeeList.appendChild(option);
                     });
 
