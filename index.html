@@ -570,7 +570,8 @@
                     
                     employees.forEach(emp => {
                         const option = document.createElement('option');
-                        option.value = `${emp.numcad} - ${emp.nomfun}`;
+                        // CORREÇÃO: Formatando a exibição para incluir numemp - numcad - nomfun (o que aparece na busca)
+                        option.value = `${emp.numemp} - ${emp.numcad} - ${emp.nomfun}`; 
                         option.dataset.cad = emp.numcad;
                         option.dataset.name = emp.nomfun;
                         option.dataset.numemp = emp.numemp; // Adiciona numemp ao dataset da opção
