@@ -1,58 +1,69 @@
+
 const express = require('express');
 const { Pool } = require('pg');
 const path = require('path');
-const cors = require('cors');
+const cors = require('cors'); // Importa o pacote cors
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const corsOptions = {
+    origin: 'https://4dsjunior.github.io' // Allow requests from your GitHub Pages site
+};
+app.use(cors(corsOptions));
+const port = process.env.PORT || 3000;
 
-app.use(cors());
-app.use(express.json());
-
+// --- Configuração do Banco de Dados ---
+// As credenciais agora são lidas das variáveis de ambiente
 const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_DATABASE,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT || 5432,
-  ssl: { rejectUnauthorized: false }
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_DATABASE,
+    password: process.env.DB_PASSWORD,
+    port: process.env.DB_PORT,
 });
 
-// Serve arquivos da raiz para o HTML e imagens funcionarem
-app.use(express.static(__dirname));
+// Middleware para servir arquivos estáticos (como index.html)
+app.use(express.static(path.join(__dirname)));
 
+// --- Endpoint de Busca ---
+// Este endpoint responde a requisições em /search-employees?term=...
 app.get('/search-employees', async (req, res) => {
-  const searchTerm = req.query.term;
-  if (!searchTerm) return res.json([]);
+    const searchTerm = req.query.term;
 
-  try {
-    // IMPORTANTE: Aspas duplas em cada campo para evitar o Erro 500 no Postgres
-    const query = `
-      SELECT 
-        "numemp", 
-        "numcad", 
-        "nomfun"
-      FROM public."Ffuncionarios"
-      WHERE 
-        CAST("numcad" AS TEXT) ILIKE $1
-        OR CAST("numemp" AS TEXT) ILIKE $1
-        OR "nomfun" ILIKE $1
-      ORDER BY "nomfun"
-      LIMIT 20
-    `;
-    
-    const { rows } = await pool.query(query, [`%${searchTerm}%`]);
-    res.json(rows);
-  } catch (err) {
-    console.error('Erro no Banco:', err.message);
-    res.status(500).json({ error: 'Erro interno' });
-  }
+    // Garante que temos um termo de busca para não fazer buscas vazias
+    if (!searchTerm || searchTerm.length < 1) {
+        return res.json([]);
+    }
+
+    try {
+        // A query foi adaptada para PostgreSQL.
+        // Ela busca tanto no 'numcad' (convertido para texto) quanto no 'nomfun'.
+        // O 'ILIKE' faz uma busca case-insensitive (ignora maiúsculas/minúsculas).
+        // O '%' é um coringa que busca por qualquer coisa que COMECE com o termo.
+        const query = {
+            text: `
+                SELECT numcad, nomfun 
+                FROM public."Ffuncionarios" 
+                WHERE CAST(numcad AS TEXT) LIKE $1 
+                   OR nomfun ILIKE $1
+                LIMIT 20;
+            `,
+            values: [`${searchTerm}%`],
+        };
+
+        const { rows } = await pool.query(query);
+        
+        // Retorna os resultados como um JSON.
+        // Ex: [{ "numcad": 12345, "nomfun": "NOME DO FUNCIONARIO" }]
+        res.json(rows);
+
+    } catch (error) {
+        console.error('Erro ao executar a query:', error);
+        res.status(500).json({ error: 'Erro interno do servidor' });
+    }
 });
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
+// Inicia o servidor
+app.listen(port, () => {
+    console.log(`Servidor rodando em http://localhost:${port}`);
+    console.log(`Para usar, abra o arquivo index.html no seu navegador.`);
 });
