@@ -6,10 +6,6 @@ const express = require('express');
 const { Pool } = require('pg');
 const path = require('path');
 const cors = require('cors');
-const rateLimit = require('express-rate-limit');
-const swaggerUi = require('swagger-ui-express');
-const swaggerJsdoc = require('swagger-jsdoc');
-const NodeCache = require('node-cache');
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
