@@ -15,64 +15,37 @@
         :root {
             --bs-primary: #4CAF50;
             --bs-primary-rgb: 76, 175, 80;
-            --bs-secondary: #6C757D;
-            --bs-secondary-rgb: 108, 117, 125;
-            --bs-success: #4CAF50;
-            --bs-success-rgb: 76, 175, 80;
-            --bs-info: #17A2B8;
-            --bs-info-rgb: 23, 162, 184;
-            --bs-warning: #FFC107;
-            --bs-warning-rgb: 255, 193, 7;
             --bs-body-bg: #F8F9FA;
         }
 
-        body {
-            background-color: var(--bs-body-bg);
-        }
+        body { background-color: var(--bs-body-bg); }
 
         .file-upload-area {
-            border: 2px dashed var(--bs-border-color);
-            border-radius: var(--bs-border-radius);
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
             padding: 2rem;
             text-align: center;
-            background-color: var(--bs-tertiary-bg);
+            background-color: #fff;
             transition: all 0.3s ease;
             cursor: pointer;
         }
 
-        .file-upload-area:hover,
-        .file-upload-area.dragover {
+        .file-upload-area:hover, .file-upload-area.dragover {
             border-color: var(--bs-primary);
-            background-color: var(--bs-primary-bg-subtle);
+            background-color: #e8f5e9;
         }
 
         .file-input {
             position: absolute;
             opacity: 0;
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
+            width: 1px;
+            height: 1px;
         }
         
+        .file-item { animation: slideIn 0.3s ease-out; }
         @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .file-item {
-            animation: slideIn 0.3s ease-out;
-        }
-
-        .loading .spinner-border-sm {
-            width: 1em;
-            height: 1em;
-            border-width: .2em;
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style> 
 </head>
@@ -82,139 +55,88 @@
             <div class="col-12 col-lg-10 col-xl-8">
                 <div class="card shadow-sm">
                     <div class="card-header bg-primary text-white text-center p-4">
-                        <h1 class="card-title h4 mb-0">
-                            Protocolo de Documentos
-                        </h1>
+                        <h1 class="card-title h4 mb-0">Protocolo de Documentos</h1>
                     </div>
                     <div class="card-body p-4 p-md-5">
                         <div class="text-center mb-4">
-                            <img src="grupoemec.png" alt="Grupo EMEC Logo" style="height: 50px;">
+                            <img src="grupoemec.png" alt="Grupo EMEC" style="height: 50px;">
                         </div>
-                        <div id="successAlert" class="alert alert-success d-none" role="alert">
-                            <i class="bi bi-check-circle-fill me-2"></i>
-                            <span id="successMessage"></span>
+
+                        <div id="successAlert" class="alert alert-success d-none">
+                            <i class="bi bi-check-circle-fill me-2"></i><span id="successMessage"></span>
                         </div>
                         
-                        <div id="errorAlert" class="alert alert-danger d-none" role="alert">
-                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                            <span id="errorMessage"></span>
+                        <div id="errorAlert" class="alert alert-danger d-none">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i><span id="errorMessage"></span>
                         </div>
 
                         <form id="documentForm" action="https://automacoes-n8n.sgmdos.easypanel.host/webhook/protocolov2" method="POST" enctype="multipart/form-data">
+                            
                             <div class="mb-3">
-                                <label for="documentType" class="form-label fw-semibold">Tipo de Documento <span class="text-danger">*</span></label>
+                                <label class="form-label fw-semibold">Tipo de Documento <span class="text-danger">*</span></label>
                                 <select class="form-select" id="documentType" name="documentType" required>
-                                    <option value="" disabled selected>Selecione o tipo de documento</option>
-                                    <option value="ADMISSIONAIS">Admissionais - Kit admissional completo</option>
-                                    <option value="ASO">ASO - Periódicos, mudança função, retorno, afastamento</option>
-                                    <option value="ATESTADOS">Atestados - Atestados e declarações médicas</option>
-                                    <option value="BENEFICIOS">Benefícios - VT, VA, VR, Plano de saúde</option>
-                                    <option value="CAT">CAT - Comunicação de acidente, laudos, encaminhamentos</option>
-                                    <option value="CONTRATUAIS">Contratuais - Aditivos, termos, alterações</option>
-                                    <option value="DOC PESSOAL">Doc's Pessoais - RG, CPF, Titulo Eleitor, foto, Etc</option>
-                                    <option value="DEMISSIONAIS">Demissionais - Kit demissional completo</option>
-                                    <option value="DEPENDENTES">Dependentes - Documentos relacionados a dependentes</option>
-                                    <option value="FERIAS">Férias - Recibos e avisos de férias</option>
-                                    <option value="OUTROS">Outros - Comunicados, advertências, suspensões</option>
-                                    <option value="PAPEL ZERO KIT COMPLETO">Papel Zero - Kit documental completo</option>
+                                    <option value="" disabled selected>Selecione o tipo...</option>
+                                    <option value="ADMISSIONAIS">Admissionais</option>
+                                    <option value="ASO">ASO</option>
+                                    <option value="ATESTADOS">Atestados</option>
+                                    <option value="BENEFICIOS">Benefícios</option>
+                                    <option value="FERIAS">Férias</option>
+                                    <option value="OUTROS">Outros</option>
                                 </select>
-                                <div class="invalid-feedback" id="documentTypeError">Por favor, selecione o tipo de documento.</div>
                             </div>
 
                             <div class="mb-3">
-                                <label for="employeeSearch" class="form-label fw-semibold">Busca (filtro por CAD ou Nome)</label>
-                                <input type="text" class="form-control" id="employeeSearch" placeholder="Digite o CAD ou o nome para buscar..." list="employee-list">
+                                <label class="form-label fw-semibold">Busca de Funcionário (Nome ou CAD)</label>
+                                <input type="text" class="form-control" id="employeeSearch" placeholder="Comece a digitar para buscar..." list="employee-list">
                                 <datalist id="employee-list"></datalist>
                             </div>
 
                             <div class="row mb-3">
-                                <div class="col-12 col-md-4">
-                                    <label for="employeeCAD" class="form-label fw-semibold">CAD <span class="text-danger">*</span></label>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-semibold">CAD</label>
                                     <input type="text" class="form-control" id="employeeCAD" name="employeeCAD" readonly required>
-                                    <div class="invalid-feedback" id="employeeCADError">CAD é obrigatório e deve ser selecionado pela busca.</div>
                                 </div>
-                                <div class="col-12 col-md-8">
-                                    <label for="employeeName" class="form-label fw-semibold">Nome Completo <span class="text-danger">*</span></label>
+                                <div class="col-md-8">
+                                    <label class="form-label fw-semibold">Nome Completo</label>
                                     <input type="text" class="form-control" id="employeeName" name="employeeName" readonly required>
-                                    <div class="invalid-feedback" id="employeeNameError">Nome completo é obrigatório e deve ser selecionado pela busca.</div>
                                 </div>
                             </div>
                             <input type="hidden" id="employeeNumemp" name="employeeNumemp">
 
                             <div class="mb-4">
-                                <label for="sector" class="form-label fw-semibold">Setor <span class="text-danger">*</span></label>
+                                <label class="form-label fw-semibold">Setor <span class="text-danger">*</span></label>
                                 <select class="form-select" id="sector" name="sector" required>
-                                    <option value="" disabled selected>Selecione o setor do funcionário</option>
+                                    <option value="" disabled selected>Selecione o setor...</option>
                                     <option value="ADM CENTRAL">ADM CENTRAL</option>
-                                    <option value="AMT AREAS VERDES">AMT AREAS VERDES</option>
-                                    <option value="APEX LOG">Apex Log</option>
                                     <option value="AUTOGLASS">AUTOGLASS</option>
-                                    <option value="CAMPOS RJ">Campos RJ</option>
-                                    <option value="COLETA RESIDUOS USINA">COLETA RESIDUOS USINA</option>
-                                    <option value="COND VILA ALPINA">COND VILA ALPINA</option>
-                                    <option value="CONTRATO DE LOCACAO Facilities">CONTRATO DE LOCACAO Facilities</option>
-                                    <option value="ELKEM PARTICIPACOES">ELKEM PARTICIPACOES</option>
-                                    <option value="ESCOLA AMERICANA DE VITORIA">ESCOLA AMERICANA DE VITORIA</option>
-                                    <option value="JSL">JSL SA</option>
-                                    <option value="PM SERRA Agrovix">PM SERRA Agrovix</option>
-                                    <option value="PM SERRA Emec">PM SERRA Emec</option>
-                                    <option value="PM VITORIA">PM VITORIA</option>
-                                    <option value="PM ARACRUZ">PM ARACRUZ</option>
                                     <option value="SHOPPING VITORIA">SHOPPING VITORIA</option>
-                                    <option value="PM VILA VELHA">PM VILA VELHA</option>
+                                    <option value="PM SERRA">PM SERRA</option>
                                 </select>
-                                <div class="invalid-feedback" id="sectorError">Por favor, selecione o setor.</div>
-                            </div>
-
-                            <hr class="my-4">
-
-                            <div class="mb-4">
-                                <label class="form-label fw-semibold">
-                                    <i class="bi bi-paperclip me-1"></i>
-                                    Anexar Arquivos
-                                </label>
-                                <div class="position-relative">
-                                    <input type="checkbox" id="original" name="manter original" value="sim"> <label for="original">Manter o nome original do arquivo</label>
-                                    <input type="file" class="file-input" id="fileUpload" 
-                                           multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt">
-                                    <div class="file-upload-area" id="fileUploadArea">
-                                        <div class="fs-1 text-muted mb-2">
-                                            <i class="bi bi-cloud-upload"></i>
-                                        </div>
-                                        <p class="mb-1 fw-bold">Clique para selecionar ou arraste os arquivos aqui</p>
-                                        <small class="text-muted d-block">
-                                            Formatos aceitos: PDF, DOC, DOCX, JPG, PNG, TXT (máx. 50MB por arquivo)
-                                        </small>
-                                    </div>
-                                    <div class="mt-3" id="fileList"></div>
-                                </div>
-                                <div class="invalid-feedback d-block" id="fileUploadError"></div>
                             </div>
 
                             <div class="mb-4">
-                                <label for="observations" class="form-label fw-semibold">
-                                    <i class="bi bi-chat-text me-1"></i>
-                                    Observações <span class="text-danger">*</span>
-                                </label>
-                                <textarea class="form-control" id="observations" name="observations" rows="4"
-                                          placeholder="Digite observações sobre os documentos... (mínimo 3 caracteres)"
-                                          maxlength="500" minlength="3" required></textarea>
-                                <div class="d-flex justify-content-between mt-1">
-                                    <div class="invalid-feedback" id="observationsError">Observações são obrigatórias (mínimo 3 caracteres).</div>
-                                    <small class="text-muted" id="charCounter">0/500</small>
+                                <label class="form-label fw-semibold">Anexar Arquivos</label>
+                                <div class="file-upload-area" id="fileUploadArea">
+                                    <i class="bi bi-cloud-upload fs-1 text-muted"></i>
+                                    <p class="fw-bold mb-0">Clique ou arraste arquivos aqui</p>
+                                    <small class="text-muted">PDF, JPG, PNG (Máx 50MB)</small>
                                 </div>
+                                <input type="file" class="file-input" id="fileUpload" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                                <div class="mt-3" id="fileList"></div>
                             </div>
 
-                            <div class="d-grid gap-2 d-md-flex justify-content-md-center pt-3 border-top">
-                                <button type="submit" class="btn btn-primary btn-lg" id="submitBtn" style="background-color: #4CAF50; border-color: #4CAF50;">
-                                    <span class="spinner-border spinner-border-sm me-2 d-none" role="status" aria-hidden="true"></span>
-                                    <i class="bi bi-send me-1"></i>
-                                    Enviar Documentos
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">Observações <span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="observations" name="observations" rows="3" required minlength="3" maxlength="500"></textarea>
+                                <small class="text-muted" id="charCounter">0/500</small>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                                    <span class="spinner-border spinner-border-sm d-none" id="btnSpinner"></span>
+                                    Enviar Protocolo
                                 </button>
-                                <button type="button" class="btn btn-secondary btn-lg" id="clearBtn">
-                                    <i class="bi bi-arrow-clockwise me-1"></i>
-                                    Limpar Formulário
-                                </button>
+                                <button type="button" class="btn btn-light" id="clearBtn">Limpar</button>
                             </div>
                         </form>
                     </div>
@@ -223,367 +145,104 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
-    
     <script>
-        // --- SCRIPT ORIGINAL ---
-        document.addEventListener('DOMContentLoaded', function () {
-            const form = document.getElementById('documentForm');
-            const submitBtn = document.getElementById('submitBtn');
-            const clearBtn = document.getElementById('clearBtn');
-            const observationsTextarea = document.getElementById('observations');
-            const charCounter = document.getElementById('charCounter');
-            const successAlert = document.getElementById('successAlert');
-            const errorAlert = document.getElementById('errorAlert');
-            const successMessage = document.getElementById('successMessage');
-            const errorMessage = document.getElementById('errorMessage');
+        // Lógica de Busca de Funcionários
+        const searchInput = document.getElementById('employeeSearch');
+        const employeeList = document.getElementById('employee-list');
+        const cadInput = document.getElementById('employeeCAD');
+        const nameInput = document.getElementById('employeeName');
+        const numempInput = document.getElementById('employeeNumemp');
+
+        searchInput.addEventListener('input', async (e) => {
+            const val = e.target.value;
             
-            const fileInput = document.getElementById('fileUpload');
-            const fileUploadArea = document.getElementById('fileUploadArea');
-            const fileList = document.getElementById('fileList');
-            let uploadedFiles = [];
+            // Verifica se o usuário selecionou uma opção do datalist
+            const option = Array.from(employeeList.options).find(opt => opt.value === val);
+            if (option) {
+                cadInput.value = option.dataset.cad;
+                nameInput.value = option.dataset.name;
+                numempInput.value = option.dataset.numemp;
+                searchInput.value = '';
+                return;
+            }
 
-            observationsTextarea.addEventListener('input', function() {
-                const count = this.value.length;
-                charCounter.textContent = `${count}/500`;
+            if (val.length < 3) return;
+
+            try {
+                // Rota relativa para funcionar no Easypanel
+                const res = await fetch(`/search-employees?term=${encodeURIComponent(val)}`);
+                const data = await res.json();
                 
-                if (count > 450) {
-                    charCounter.classList.remove('text-muted', 'text-warning');
-                    charCounter.classList.add('text-danger');
-                } else if (count > 400) {
-                    charCounter.classList.remove('text-muted', 'text-danger');
-                    charCounter.classList.add('text-warning');
-                } else {
-                    charCounter.classList.remove('text-warning', 'text-danger');
-                    charCounter.classList.add('text-muted');
-                }
-            });
-
-            function validateField(field) {
-                let isValid = true;
-                let errorMsg = '';
-
-                field.classList.remove('is-valid', 'is-invalid');
-                const errorElement = document.getElementById(field.id + 'Error');
-
-                if (field.hasAttribute('required')) {
-                    if (field.id === 'fileUpload') {
-                        if (uploadedFiles.length === 0) {
-                            isValid = false;
-                            errorMsg = 'Por favor, anexe pelo menos um arquivo.';
-                            document.getElementById('fileUploadError').textContent = errorMsg;
-                        } else {
-                            document.getElementById('fileUploadError').textContent = '';
-                        }
-                    } else if (!field.value.trim()) {
-                        isValid = false;
-                        errorMsg = getRequiredMessage(field.id);
-                    }
-                }
-                
-                if (field.id === 'employeeCAD' && field.value && !/^[0-9]+$/.test(field.value)) {
-                    isValid = false;
-                    errorMsg = 'CAD deve conter apenas números.';
-                } else if (field.id === 'observations' && field.value.length > 0 && field.value.length < 3) {
-                    isValid = false;
-                    errorMsg = 'Observações devem ter pelo menos 3 caracteres.';
-                }
-
-                if (field.value.trim()) {
-                    field.classList.add(isValid ? 'is-valid' : 'is-invalid');
-                }
-
-                if (errorElement) {
-                    errorElement.textContent = errorMsg;
-                }
-
-                return isValid;
-            }
-            window.validateField = validateField;
-
-            function getRequiredMessage(fieldId) {
-                const messages = {
-                    'documentType': 'Por favor, selecione o tipo de documento.',
-                    'employeeCAD': 'CAD é obrigatório e deve ser selecionado pela busca.',
-                    'employeeName': 'Nome completo é obrigatório e deve ser selecionado pela busca.',
-                    'sector': 'Por favor, selecione o setor.',
-                    'observations': 'Observações são obrigatórias.'
-                };
-                return messages[fieldId] || 'Campo obrigatório.';
-            }
-
-            form.querySelectorAll('input, select, textarea').forEach(field => {
-                field.addEventListener('blur', () => validateField(field));
-                field.addEventListener('input', () => {
-                    if (field.classList.contains('is-invalid')) {
-                        validateField(field);
-                    }
+                employeeList.innerHTML = '';
+                data.forEach(emp => {
+                    const opt = document.createElement('option');
+                    opt.value = `${emp.numemp} - ${emp.numcad} - ${emp.nomfun}`;
+                    opt.dataset.cad = emp.numcad;
+                    opt.dataset.name = emp.nomfun;
+                    opt.dataset.numemp = emp.numemp;
+                    employeeList.appendChild(opt);
                 });
-            });
-
-            fileInput.addEventListener('change', handleFileSelect);
-            fileUploadArea.addEventListener('dragover', handleDragOver);
-            fileUploadArea.addEventListener('dragleave', handleDragLeave);
-            fileUploadArea.addEventListener('drop', handleFileDrop);
-            fileUploadArea.addEventListener('click', () => fileInput.click());
-
-            function handleFileSelect(e) {
-                processFiles(Array.from(e.target.files));
-                e.target.value = '';
+            } catch (err) {
+                console.error('Erro na busca:', err);
             }
+        });
 
-            function handleDragOver(e) {
-                e.preventDefault();
-                fileUploadArea.classList.add('dragover');
-            }
+        // Lógica de Upload de Arquivos
+        const fileArea = document.getElementById('fileUploadArea');
+        const fileInput = document.getElementById('fileUpload');
+        const fileListDiv = document.getElementById('fileList');
+        let selectedFiles = [];
 
-            function handleDragLeave(e) {
-                e.preventDefault();
-                fileUploadArea.classList.remove('dragover');
-            }
+        fileArea.onclick = () => fileInput.click();
 
-            function handleFileDrop(e) {
-                e.preventDefault();
-                fileUploadArea.classList.remove('dragover');
-                processFiles(Array.from(e.dataTransfer.files));
-            }
+        fileInput.onchange = (e) => {
+            selectedFiles = Array.from(e.target.files);
+            renderFiles();
+        };
 
-            function processFiles(files) {
-                const maxSize = 50 * 1024 * 1024; // 50MB
-                const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/jpeg', 'image/png', 'text/plain'];
-                
-                files.forEach(file => {
-                    if (uploadedFiles.some(f => f.name === file.name && f.size === file.size)) {
-                        showFileError(`Arquivo "${file.name}" já foi adicionado.`);
-                        return;
-                    }
-                    if (file.size > maxSize) {
-                        showFileError(`Arquivo "${file.name}" é muito grande (Máx: 50MB).`);
-                        return;
-                    }
-                    if (!allowedTypes.includes(file.type)) {
-                        showFileError(`Formato de arquivo "${file.name}" não é suportado.`);
-                        return;
-                    }
-                    addFileToList(file);
-                });
-            }
+        function renderFiles() {
+            fileListDiv.innerHTML = selectedFiles.map(f => 
+                `<div class="file-item p-2 border-bottom small"><i class="bi bi-file-earmark-check me-2"></i>${f.name}</div>`
+            ).join('');
+        }
 
-            function addFileToList(file) {
-                const fileObj = { file, name: file.name, size: file.size, id: Date.now() + Math.random() };
-                uploadedFiles.push(fileObj);
-                renderFileList();
-                hideFileError();
-            }
+        // Envio do Formulário
+        const form = document.getElementById('documentForm');
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            const spinner = document.getElementById('btnSpinner');
+            
+            btn.disabled = true;
+            spinner.classList.remove('d-none');
 
-            function renderFileList() {
-                fileList.innerHTML = '';
-                if (uploadedFiles.length > 0) {
-                    const listGroup = document.createElement('ul');
-                    listGroup.className = 'list-group';
-                    uploadedFiles.forEach(fileObj => {
-                        const item = document.createElement('li');
-                        item.className = 'list-group-item d-flex justify-content-between align-items-center file-item';
-                        
-                        item.innerHTML = `
-                            <div class="d-flex align-items-center text-truncate">
-                                <span class="me-3 fs-4">${getFileIcon(fileObj.file.type)}</span>
-                                <div class="text-truncate">
-                                    <span class="fw-semibold d-block text-truncate" title="${fileObj.name}">${fileObj.name}</span>
-                                    <small class="text-muted">${formatFileSize(fileObj.size)}</small>
-                                </div>
-                            </div>
-                            <button type="button" class="btn-close" aria-label="Remover"></button>
-                        `;
-                        
-                        const removeButton = item.querySelector('.btn-close');
-                        removeButton.addEventListener('click', () => {
-                            uploadedFiles = uploadedFiles.filter(f => f.id !== fileObj.id);
-                            renderFileList();
-                        });
-
-                        listGroup.appendChild(item);
-                    });
-                    fileList.appendChild(listGroup);
-                }
-            }
-
-            function getFileIcon(fileType) {
-                if (fileType.startsWith('image/')) return '<i class="bi bi-file-earmark-image text-success"></i>';
-                if (fileType === 'application/pdf') return '<i class="bi bi-file-earmark-pdf text-danger"></i>';
-                if (fileType.includes('word')) return '<i class="bi bi-file-earmark-word text-primary"></i>';
-                if (fileType === 'text/plain') return '<i class="bi bi-file-earmark-text text-info"></i>';
-                return '<i class="bi bi-file-earmark text-secondary"></i>';
-            }
-
-            function formatFileSize(bytes) {
-                if (bytes === 0) return '0 Bytes';
-                const k = 1024;
-                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-                const i = Math.floor(Math.log(bytes) / Math.log(k));
-                return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
-            }
-
-            function showFileError(message) {
-                const errorElement = document.getElementById('fileUploadError');
-                errorElement.textContent = message;
-                setTimeout(() => { errorElement.textContent = ''; }, 5000);
-            }
-
-            function hideFileError() {
-                document.getElementById('fileUploadError').textContent = '';
-            }
-
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                let isFormValid = true;
-                form.querySelectorAll('input[required], select[required], textarea[required]').forEach(field => {
-                    if (!validateField(field)) {
-                        isFormValid = false;
-                    }
-                });
-
-                if (uploadedFiles.length === 0) {
-                    isFormValid = false;
-                    document.getElementById('fileUploadError').textContent = 'Por favor, anexe pelo menos um arquivo.';
-                } else {
-                    document.getElementById('fileUploadError').textContent = '';
-                }
-
-                if (!isFormValid) {
-                    showAlert('error', 'Por favor, corrija os erros no formulário antes de enviar.');
-                    window.scrollTo(0, 0);
-                    return;
-                }
-
-                const submitIcon = submitBtn.querySelector('.bi-send');
-                const spinner = submitBtn.querySelector('.spinner-border');
-                submitIcon.classList.add('d-none');
-                spinner.classList.remove('d-none');
-                submitBtn.disabled = true;
-
+            try {
                 const formData = new FormData(form);
-                formData.append('protocolId', `PROTO-${Date.now()}`);
-                formData.append('timestamp', new Date().toLocaleString('pt-BR'));
-                uploadedFiles.forEach(f => formData.append('files', f.file));
+                // Adiciona os arquivos manualmente se necessário
+                selectedFiles.forEach(file => formData.append('files', file));
 
-                fetch(form.action, {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => {
-                    if (response.ok) {
-                        showAlert('success', `Documentos protocolados com sucesso! Protocolo: ${formData.get('protocolId')}`);
-                        clearForm(false);
-                    } else {
-                        showAlert('error', 'Erro ao enviar os documentos. Tente novamente.');
-                    }
-                })
-                .catch(error => {
-                    showAlert('error', 'Falha na conexão com o servidor.');
-                    console.error(error);
-                })
-                .finally(() => {
-                    submitIcon.classList.remove('d-none');
-                    spinner.classList.add('d-none');
-                    submitBtn.disabled = false;
-                    window.scrollTo(0, 0);
-                });
-            });
-
-            clearBtn.addEventListener('click', function() {
-                if (confirm('Tem certeza que deseja limpar todo o formulário?')) {
-                    clearForm(true);
-                }
-            });
-
-            function clearForm(showAlerts) {
-                form.reset();
-                uploadedFiles = [];
-                renderFileList();
-                hideFileError();
+                const response = await fetch(form.action, { method: 'POST', body: formData });
                 
-                form.querySelectorAll('.is-valid, .is-invalid').forEach(el => el.classList.remove('is-valid', 'is-invalid'));
-                charCounter.textContent = '0/500';
-                charCounter.className = 'text-muted';
-
-                if (showAlerts) {
-                    showAlert('info', 'Formulário limpo.');
+                if (response.ok) {
+                    document.getElementById('successAlert').classList.remove('d-none');
+                    document.getElementById('successMessage').innerText = "Enviado com sucesso!";
+                    form.reset();
+                    selectedFiles = [];
+                    renderFiles();
+                } else {
+                    throw new Error();
                 }
+            } catch (err) {
+                document.getElementById('errorAlert').classList.remove('d-none');
+                document.getElementById('errorMessage').innerText = "Erro ao enviar para o n8n.";
+            } finally {
+                btn.disabled = false;
+                spinner.classList.add('d-none');
+                window.scrollTo(0,0);
             }
+        };
 
-            function showAlert(type, message) {
-                const alert = type === 'success' ? successAlert : errorAlert;
-                const msgElem = type === 'success' ? successMessage : errorMessage;
-                
-                (type === 'success' ? errorAlert : successAlert).classList.add('d-none');
-
-                msgElem.textContent = message;
-                alert.classList.remove('d-none');
-
-                setTimeout(() => {
-                    alert.classList.add('d-none');
-                }, 5000);
-            }
-        });
-    </script>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const searchInput = document.getElementById('employeeSearch');
-            const cadInput = document.getElementById('employeeCAD');
-            const nameInput = document.getElementById('employeeName');
-            const employeeList = document.getElementById('employee-list');
-            const numempInput = document.getElementById('employeeNumemp'); // Variável para o novo campo NUMEMP
-
-            searchInput.addEventListener('input', async (e) => {
-                const currentValue = e.target.value;
-                const selectedOption = Array.from(employeeList.options).find(opt => opt.value === currentValue);
-
-                if (selectedOption) {
-                    cadInput.value = selectedOption.dataset.cad;
-                    nameInput.value = selectedOption.dataset.name;
-                    numempInput.value = selectedOption.dataset.numemp; // Atribui o numemp selecionado
-                    
-                    searchInput.value = '';
-                    employeeList.innerHTML = '';
-
-                    if (typeof window.validateField === 'function') {
-                        window.validateField(cadInput);
-                        window.validateField(nameInput);
-                    }
-                    return;
-                }
-
-                if (currentValue.length < 1) {
-                    employeeList.innerHTML = '';
-                    return;
-                }
-
-                try {
-                    const response = await fetch(`https://apps-protocolo-emec-v2.sgmdos.easypanel.host/search-employees?term=${currentValue}`);
-                    if (!response.ok) throw new Error('Network response was not ok');
-                    
-                    const employees = await response.json();
-                    
-                    employeeList.innerHTML = '';
-                    
-                    employees.forEach(emp => {
-                        const option = document.createElement('option');
-                        // CORREÇÃO: Formatando a exibição para incluir numemp - numcad - nomfun (o que aparece na busca)
-                        option.value = `${emp.numemp} - ${emp.numcad} - ${emp.nomfun}`; 
-                        option.dataset.cad = emp.numcad;
-                        option.dataset.name = emp.nomfun;
-                        option.dataset.numemp = emp.numemp; // Adiciona numemp ao dataset da opção
-                        employeeList.appendChild(option);
-                    });
-
-                } catch (error) {
-                    console.error('Erro ao buscar funcionários:', error);
-                }
-            });
-        });
+        document.getElementById('clearBtn').onclick = () => { if(confirm('Limpar?')) location.reload(); };
     </script>
 </body>
 </html>
