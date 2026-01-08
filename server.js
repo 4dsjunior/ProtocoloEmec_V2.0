@@ -9,7 +9,6 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Configuração do Banco
 const pool = new Pool({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
@@ -19,7 +18,7 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false }
 });
 
-// Serve arquivos da raiz
+// Serve arquivos da raiz para o HTML e imagens funcionarem
 app.use(express.static(__dirname));
 
 app.get('/search-employees', async (req, res) => {
@@ -27,7 +26,7 @@ app.get('/search-employees', async (req, res) => {
   if (!searchTerm) return res.json([]);
 
   try {
-    // IMPORTANTE: Aspas duplas em tudo para evitar Erro 500 no Postgres
+    // IMPORTANTE: Aspas duplas em cada campo para evitar o Erro 500 no Postgres
     const query = `
       SELECT 
         "numemp", 
@@ -46,7 +45,7 @@ app.get('/search-employees', async (req, res) => {
     res.json(rows);
   } catch (err) {
     console.error('Erro no Banco:', err.message);
-    res.status(500).send(err.message);
+    res.status(500).json({ error: 'Erro interno' });
   }
 });
 
