@@ -2,10 +2,10 @@
   "name": "testes",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",
@@ -15,9 +15,13 @@
   "author": "",
   "license": "ISC",
   "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/4dsjunior/protocoloEmec/issues"
+  },
+  "homepage": "https://github.com/4dsjunior/protocoloEmec#readme",
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^4.21.1",
-    "pg": "^8.13.1"
+    "express": "^5.1.0",
+    "pg": "^8.16.3"
   }
 }
