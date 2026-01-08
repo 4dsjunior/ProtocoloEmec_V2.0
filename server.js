@@ -1,5 +1,5 @@
 // ================================
-// SERVER.JS - PADRÃO PRODUÇÃO (EASYPANEL SAFE)
+// SERVER.JS - PADRÃO PRODUÇÃO
 // ================================
 
 const express = require('express');
@@ -8,56 +8,39 @@ const path = require('path');
 const cors = require('cors');
 
 const app = express();
+// O Easypanel geralmente usa a porta 3000 ou a definida no painel
 const PORT = Number(process.env.PORT) || 3000;
 
-// ================================
-// CORS
-// ================================
+// Configuração de CORS
 app.use(cors({
-  origin: process.env.CORS_ORIGIN
-    ? process.env.CORS_ORIGIN.split(',')
-    : '*'
+  origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : '*'
 }));
 
-// ================================
-// BANCO DE DADOS
-// ================================
+// Banco de Dados
 const pool = new Pool({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
   database: process.env.DB_DATABASE,
   password: process.env.DB_PASSWORD,
   port: Number(process.env.DB_PORT) || 5432,
-  ssl: process.env.DB_SSL === 'true'
-    ? { rejectUnauthorized: false }
-    : false
+  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
 });
 
-// Teste de conexão
-(async () => {
-  try {
-    await pool.query('SELECT 1');
-    console.log('Banco conectado com sucesso');
-  } catch (err) {
-    console.error('Erro ao conectar no banco:', err);
+// Teste de conexão persistente
+pool.query('SELECT 1')
+  .then(() => console.log('Banco conectado com sucesso'))
+  .catch(err => {
+    console.error('Erro fatal ao conectar no banco:', err);
     process.exit(1);
-  }
-})();
+  });
 
-// ================================
-// STATIC FILES
-// ================================
-app.use(express.static(path.join(__dirname, 'public')));
+// Servir arquivos estáticos diretamente da RAIZ (onde seu index.html está)
+app.use(express.static(path.join(__dirname)));
 
-// ================================
-// ROUTES
-// ================================
+// Rotas de API
 app.get('/search-employees', async (req, res) => {
   const searchTerm = req.query.term;
-
-  if (!searchTerm || searchTerm.length < 1) {
-    return res.json([]);
-  }
+  if (!searchTerm || searchTerm.length < 1) return res.json([]);
 
   try {
     const { rows } = await pool.query({
@@ -76,7 +59,6 @@ app.get('/search-employees', async (req, res) => {
       `,
       values: [`%${searchTerm}%`]
     });
-
     res.json(rows);
   } catch (err) {
     console.error('Erro na busca:', err);
@@ -84,34 +66,24 @@ app.get('/search-employees', async (req, res) => {
   }
 });
 
+// Rota de Health Check para o Easypanel
 app.get('/health', (req, res) => {
-  res.json({
-    status: 'ok',
-    uptime: process.uptime(),
-    timestamp: new Date().toISOString()
-  });
+  res.json({ status: 'ok', uptime: process.uptime() });
 });
 
-// ================================
-// ERROR HANDLER
-// ================================
-app.use((err, req, res, next) => {
-  console.error('Erro não tratado:', err);
-  res.status(500).json({ error: 'Erro interno do servidor' });
+// Rota para garantir que o index.html seja entregue na raiz
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// ================================
-// SERVER START
-// ================================
-app.listen(PORT, () => {
+// Inicialização do Servidor
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Servidor rodando na porta ${PORT}`);
 });
 
-// ================================
-// GRACEFUL SHUTDOWN
-// ================================
+// Encerramento Gracioso
 process.on('SIGTERM', async () => {
-  console.log('Encerrando servidor...');
+  console.log('Sinal SIGTERM recebido. Encerrando...');
   await pool.end();
   process.exit(0);
 });
