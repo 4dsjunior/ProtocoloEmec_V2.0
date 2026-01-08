@@ -1,7 +1,7 @@
 // ================================
-// SERVER.JS - PADRÃO PRODUÇÃO
-// Compatível com VPS Hostinger / EasyPanel
+// SERVER.JS - PADRÃO PRODUÇÃO (EASYPANEL SAFE)
 // ================================
+
 const express = require('express');
 const { Pool } = require('pg');
 const path = require('path');
@@ -14,24 +14,10 @@ const PORT = Number(process.env.PORT) || 3000;
 // CORS
 // ================================
 app.use(cors({
-  origin: process.env.CORS_ORIGIN?.split(',') || '*'
+  origin: process.env.CORS_ORIGIN
+    ? process.env.CORS_ORIGIN.split(',')
+    : '*'
 }));
-
-// ================================
-// RATE LIMIT
-// ================================
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 300,
-  standardHeaders: true,
-  legacyHeaders: false
-});
-app.use(limiter);
-
-// ================================
-// CACHE (EM MEMÓRIA)
-// ================================
-const cache = new NodeCache({ stdTTL: 60, checkperiod: 120 });
 
 // ================================
 // BANCO DE DADOS
@@ -42,9 +28,12 @@ const pool = new Pool({
   database: process.env.DB_DATABASE,
   password: process.env.DB_PASSWORD,
   port: Number(process.env.DB_PORT) || 5432,
-  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
+  ssl: process.env.DB_SSL === 'true'
+    ? { rejectUnauthorized: false }
+    : false
 });
 
+// Teste de conexão
 (async () => {
   try {
     await pool.query('SELECT 1');
@@ -56,22 +45,6 @@ const pool = new Pool({
 })();
 
 // ================================
-// SWAGGER
-// ================================
-const swaggerSpec = swaggerJsdoc({
-  definition: {
-    openapi: '3.0.0',
-    info: {
-      title: 'API Funcionários',
-      version: '1.0.0'
-    }
-  },
-  apis: [__filename]
-});
-
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
-// ================================
 // STATIC FILES
 // ================================
 app.use(express.static(path.join(__dirname, 'public')));
@@ -79,28 +52,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 // ================================
 // ROUTES
 // ================================
-
-/**
- * @swagger
- * /search-employees:
- *   get:
- *     summary: Busca funcionários
- *     parameters:
- *       - in: query
- *         name: term
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Lista de funcionários
- */
-app.get('/search-employees', async (req, res, next) => {
+app.get('/search-employees', async (req, res) => {
   const searchTerm = req.query.term;
-  if (!searchTerm || searchTerm.length < 1) return res.json([]);
 
-  const cacheKey = `search:${searchTerm}`;
-  const cached = cache.get(cacheKey);
-  if (cached) return res.json(cached);
+  if (!searchTerm || searchTerm.length < 1) {
+    return res.json([]);
+  }
 
   try {
     const { rows } = await pool.query({
@@ -120,22 +77,26 @@ app.get('/search-employees', async (req, res, next) => {
       values: [`%${searchTerm}%`]
     });
 
-    cache.set(cacheKey, rows);
     res.json(rows);
   } catch (err) {
-    next(err);
+    console.error('Erro na busca:', err);
+    res.status(500).json({ error: 'Erro ao buscar funcionários' });
   }
 });
 
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', uptime: process.uptime() });
+  res.json({
+    status: 'ok',
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString()
+  });
 });
 
 // ================================
 // ERROR HANDLER
 // ================================
 app.use((err, req, res, next) => {
-  console.error(err);
+  console.error('Erro não tratado:', err);
   res.status(500).json({ error: 'Erro interno do servidor' });
 });
 
@@ -144,7 +105,6 @@ app.use((err, req, res, next) => {
 // ================================
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
-  console.log(`Swagger: /docs`);
 });
 
 // ================================
