@@ -1,9 +1,10 @@
 {
-  "name": "testes",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "protocolo-emec-v2",
+  "version": "2.0.0",
+  "description": "Sistema de Protocolo de Documentos EMEC",
+  "main": "server.js",
   "scripts": {
+    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -14,10 +15,6 @@
   "author": "",
   "license": "ISC",
   "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/4dsjunior/protocoloEmec/issues"
-  },
-  "homepage": "https://github.com/4dsjunior/protocoloEmec#readme",
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^5.1.0",
