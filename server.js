@@ -1,89 +1,69 @@
-// ================================
-// SERVER.JS - PADRÃO PRODUÇÃO
-// ================================
 
 const express = require('express');
 const { Pool } = require('pg');
 const path = require('path');
-const cors = require('cors');
+const cors = require('cors'); // Importa o pacote cors
 
 const app = express();
-// O Easypanel geralmente usa a porta 3000 ou a definida no painel
-const PORT = Number(process.env.PORT) || 3000;
+const corsOptions = {
+    origin: 'https://4dsjunior.github.io' // Allow requests from your GitHub Pages site
+};
+app.use(cors(corsOptions));
+const port = process.env.PORT || 3000;
 
-// Configuração de CORS
-app.use(cors({
-  origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : '*'
-}));
-
-// Banco de Dados
+// --- Configuração do Banco de Dados ---
+// As credenciais agora são lidas das variáveis de ambiente
 const pool = new Pool({
-  user: process.env.DB_USER,
-  host: process.env.DB_HOST,
-  database: process.env.DB_DATABASE,
-  password: process.env.DB_PASSWORD,
-  port: Number(process.env.DB_PORT) || 5432,
-  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_DATABASE,
+    password: process.env.DB_PASSWORD,
+    port: process.env.DB_PORT,
 });
 
-// Teste de conexão persistente
-pool.query('SELECT 1')
-  .then(() => console.log('Banco conectado com sucesso'))
-  .catch(err => {
-    console.error('Erro fatal ao conectar no banco:', err);
-    process.exit(1);
-  });
-
-// Servir arquivos estáticos diretamente da RAIZ (onde seu index.html está)
+// Middleware para servir arquivos estáticos (como index.html)
 app.use(express.static(path.join(__dirname)));
 
-// Rotas de API
+// --- Endpoint de Busca ---
+// Este endpoint responde a requisições em /search-employees?term=...
 app.get('/search-employees', async (req, res) => {
-  const searchTerm = req.query.term;
-  if (!searchTerm || searchTerm.length < 1) return res.json([]);
+    const searchTerm = req.query.term;
 
-  try {
-    const { rows } = await pool.query({
-      text: `
-        SELECT 
-          COALESCE(numemp, 0) AS numemp,
-          COALESCE(numcad, 0) AS numcad,
-          COALESCE(nomfun, '') AS nomfun
-        FROM public."Ffuncionarios"
-        WHERE 
-          CAST(numcad AS TEXT) ILIKE $1
-          OR CAST(numemp AS TEXT) ILIKE $1
-          OR nomfun ILIKE $1
-        ORDER BY nomfun
-        LIMIT 20
-      `,
-      values: [`%${searchTerm}%`]
-    });
-    res.json(rows);
-  } catch (err) {
-    console.error('Erro na busca:', err);
-    res.status(500).json({ error: 'Erro ao buscar funcionários' });
-  }
+    // Garante que temos um termo de busca para não fazer buscas vazias
+    if (!searchTerm || searchTerm.length < 1) {
+        return res.json([]);
+    }
+
+    try {
+        // A query foi adaptada para PostgreSQL.
+        // Ela busca tanto no 'numcad' (convertido para texto) quanto no 'nomfun'.
+        // O 'ILIKE' faz uma busca case-insensitive (ignora maiúsculas/minúsculas).
+        // O '%' é um coringa que busca por qualquer coisa que COMECE com o termo.
+        const query = {
+            text: `
+                SELECT numcad, nomfun 
+                FROM public."Ffuncionarios" 
+                WHERE CAST(numcad AS TEXT) LIKE $1 
+                   OR nomfun ILIKE $1
+                LIMIT 20;
+            `,
+            values: [`${searchTerm}%`],
+        };
+
+        const { rows } = await pool.query(query);
+        
+        // Retorna os resultados como um JSON.
+        // Ex: [{ "numcad": 12345, "nomfun": "NOME DO FUNCIONARIO" }]
+        res.json(rows);
+
+    } catch (error) {
+        console.error('Erro ao executar a query:', error);
+        res.status(500).json({ error: 'Erro interno do servidor' });
+    }
 });
 
-// Rota de Health Check para o Easypanel
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', uptime: process.uptime() });
-});
-
-// Rota para garantir que o index.html seja entregue na raiz
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-// Inicialização do Servidor
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
-});
-
-// Encerramento Gracioso
-process.on('SIGTERM', async () => {
-  console.log('Sinal SIGTERM recebido. Encerrando...');
-  await pool.end();
-  process.exit(0);
+// Inicia o servidor
+app.listen(port, () => {
+    console.log(`Servidor rodando em http://localhost:${port}`);
+    console.log(`Para usar, abra o arquivo index.html no seu navegador.`);
 });
