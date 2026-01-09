@@ -1,4 +1,3 @@
-
 const express = require('express');
 const { Pool } = require('pg');
 const path = require('path');
@@ -21,6 +20,13 @@ const pool = new Pool({
     port: process.env.DB_PORT,
 });
 
+// --- Rota de Health Check (NOVO) ---
+// O EasyPanel usa isso para verificar se o container está saudável.
+// Sem isso (ou sem o bind 0.0.0.0), o EasyPanel reinicia o app achando que travou.
+app.get('/health', (req, res) => {
+    res.status(200).send('OK');
+});
+
 // Middleware para servir arquivos estáticos (como index.html)
 app.use(express.static(path.join(__dirname)));
 
@@ -36,9 +42,6 @@ app.get('/search-employees', async (req, res) => {
 
     try {
         // A query foi adaptada para PostgreSQL.
-        // Ela busca tanto no 'numcad' (convertido para texto) quanto no 'nomfun'.
-        // O 'ILIKE' faz uma busca case-insensitive (ignora maiúsculas/minúsculas).
-        // O '%' é um coringa que busca por qualquer coisa que COMECE com o termo.
         const query = {
             text: `
                 SELECT numcad, nomfun 
@@ -53,7 +56,6 @@ app.get('/search-employees', async (req, res) => {
         const { rows } = await pool.query(query);
         
         // Retorna os resultados como um JSON.
-        // Ex: [{ "numcad": 12345, "nomfun": "NOME DO FUNCIONARIO" }]
         res.json(rows);
 
     } catch (error) {
@@ -63,7 +65,8 @@ app.get('/search-employees', async (req, res) => {
 });
 
 // Inicia o servidor
-app.listen(port, () => {
-    console.log(`Servidor rodando em http://localhost:${port}`);
+// ALTERAÇÃO CRÍTICA: Adicionado '0.0.0.0' para ouvir em todas as interfaces de rede do container
+app.listen(port, '0.0.0.0', () => {
+    console.log(`Servidor rodando em http://0.0.0.0:${port}`);
     console.log(`Para usar, abra o arquivo index.html no seu navegador.`);
 });
