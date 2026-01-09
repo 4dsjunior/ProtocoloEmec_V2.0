@@ -579,7 +579,7 @@
                     
                     employees.forEach(emp => {
                         const option = document.createElement('option');
-                        option.value = `${emp.numcad} - ${emp.nomfun}`;
+                        option.value = `${emp.numemp} - ${emp.numcad} - ${emp.nomfun}`;
                         option.dataset.cad = emp.numcad;
                         option.dataset.name = emp.nomfun;
                         employeeList.appendChild(option);
