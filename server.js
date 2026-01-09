@@ -44,7 +44,7 @@ app.get('/search-employees', async (req, res) => {
         // A query foi adaptada para PostgreSQL.
         const query = {
             text: `
-                SELECT numcad, nomfun 
+                SELECT numemp, numcad, nomfun 
                 FROM public."Ffuncionarios" 
                 WHERE CAST(numcad AS TEXT) LIKE $1 
                    OR nomfun ILIKE $1
